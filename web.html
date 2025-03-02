@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+</head>
+<body>
+    <h1>Product Details</h1>
+    <div id="productDetails"></div>
+
+    <script>
+        // Connect to the blockchain
+        const web3 = new Web3('https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID');
+
+        // Replace with your contract address and ABI
+        const contractAddress = 'YOUR_CONTRACT_ADDRESS';
+        const contractABI = [ /* ABI goes here */ ];
+
+        const contract = new web3.eth.Contract(contractABI, contractAddress);
+
+        // Get the productId from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('productId');
+
+        // Function to fetch product details from the blockchain
+        async function fetchProductDetails(productId) {
+            if (productId) {
+                try {
+                    const product = await contract.methods.getProduct(productId).call();
+                    const name = product[0];
+                    const description = product[1];
+                    const price = web3.utils.fromWei(product[2], 'ether') + ' ETH';
+
+                    // Display product details
+                    document.getElementById('productDetails').innerHTML = `
+                        <h2>${name}</h2>
+                        <p>${description}</p>
+                        <p><strong>Price:</strong> ${price}</p>
+                    `;
+                } catch (error) {
+                    document.getElementById('productDetails').innerHTML = '<p>Error fetching product details.</p>';
+                }
+            } else {
+                document.getElementById('productDetails').innerHTML = '<p>Product ID is missing.</p>';
+            }
+        }
+
+        // Call the function to fetch product details
+        fetchProductDetails(productId);
+    </script>
+</body>
+</html>
